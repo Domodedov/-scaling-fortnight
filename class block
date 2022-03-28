@@ -1,0 +1,27 @@
+class Block:
+
+    def __init__(self, timestamp=None, data=None):
+        self.timestamp = timestamp or time()
+        self.data = [] if data is None else data
+        self.prevHash = None # хеш предыдущего блока
+        self.nonce = 0
+        self.hash = self.getHash()
+
+    # Наша хеш-функция.
+    def getHash(self):
+
+        hash = sha256()
+        hash.update(str(self.prevHash).encode('utf-8'))
+        hash.update(str(self.timestamp).encode('utf-8'))
+        hash.update(str(self.data).encode('utf-8'))
+        hash.update(str(self.nonce).encode('utf-8'))
+        return hash.hexdigest()
+
+    def mine(self, difficulty):
+        # Тут запускается цикл, работающий до тех пор, пока хеш не будет начинаться со строки
+        # 0...000 длины <difficulty>.
+        while self.hash[:difficulty] != '0' * difficulty:
+            # Инкрементируем nonce, что позволяет получить совершенно новый хеш.
+            self.nonce += 1
+            # Пересчитываем хеш блока с учётом нового значения nonce.
+            self.hash = self.getHash()
